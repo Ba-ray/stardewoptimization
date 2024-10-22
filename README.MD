@@ -25,7 +25,7 @@ W(r,c) \in \{0,1\} \\
 $$
 
 **Objective:**
-Maximize number of watered cells while minimizing number of sprinklers used (fine tune the punishment for placing a sprinkler depending on your needs)
+Maximize number of watered farmable cells while minimizing number of sprinklers used (fine tune the punishment for placing a sprinkler depending on your needs)
 $$
 \displaystyle\sum_{r=1}^{rows}\sum_{c=1}^{cols} W(r,c)\ .\ F(r,c)\ -\ \displaystyle\sum_{r=1}^{rows}\sum_{c=1}^{cols} S(r,c)
 $$
