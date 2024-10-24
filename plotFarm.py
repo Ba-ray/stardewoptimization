@@ -19,26 +19,35 @@ def plot_result(farmGrid, sprinkler_placement, watered_tiles):
             else:                           # Unwatered farmable land
                 grid[i][j] = 3
 
-    # Define a color map for the visualization
-    cmap = plt.cm.get_cmap('Set1', 4)  # 4 distinct colors
-    plt.figure(figsize=(10, 6))
+    # Define a custom color map for the visualization with more pleasing colors
+    cmap = plt.cm.colors.ListedColormap(['black', 'orange', 'deepskyblue', 'saddlebrown'])  # Custom colors
+
+    plt.figure(figsize=(12, 8))
 
     # Draw the farm grid
-    plt.imshow(grid, cmap=cmap, interpolation='nearest')
-    plt.colorbar(ticks=[0, 1, 2, 3], label='Legend')
+    plt.imshow(grid, cmap=cmap, interpolation='none')
+    
+    # Adjust colorbar position and size to avoid overlap
+    cbar = plt.colorbar(ticks=[0, 1, 2, 3], label='Legend', shrink=0.8)
     plt.clim(-0.5, 3.5)  # Set color limits
 
-    # Set legend labels
-    color_labels = ['Unfarmable', 'Sprinkler', 'Watered', 'Unwatered']
-    handles = [plt.Rectangle((0, 0), 1, 1, color=cmap(i / 3)) for i in range(4)]
-    plt.legend(handles, color_labels, bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Set legend labels with better color descriptions and place outside the plot
+    color_labels = ['Unfarmable (Black)', 'Sprinkler (Orange)', 'Watered (Sky Blue)', 'Unwatered (Brown)']
+    handles = [plt.Rectangle((0, 0), 1, 1, color=cmap(i)) for i in range(4)]
+    
+    # Position legend to the right and outside the plot
+    plt.legend(handles, color_labels, bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0, fontsize=10)
 
-    # Set gridlines
+    # Set gridlines with enhanced visibility
     plt.xticks(np.arange(-0.5, cols, 1), [])
     plt.yticks(np.arange(-0.5, rows, 1), [])
-    plt.grid(color='black', linestyle='-', linewidth=1)
+    plt.grid(color='white', linestyle='-', linewidth=1.5)
 
-    # Display the plot
-    plt.title("Farm Sprinkler Placement and Watering")
+    # Display the plot with a more descriptive title
+    plt.title("Optimized Farm Sprinkler Placement and Watering", fontsize=16, pad=20)
+    
+    # Tight layout for better spacing
+    plt.tight_layout()
+    
     plt.show()
     # plt.savefig("farm.png")

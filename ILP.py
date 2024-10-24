@@ -8,12 +8,13 @@ def solve(farmGrid):
     # Initialize the optimization problem
     problem = pulp.LpProblem("Sprinkler_Optimization", pulp.LpMaximize)
 
-    # Variables for sprinklers and watered cells
+    # Sprinkler Variables
     sprinklers = [
         [pulp.LpVariable(f"Sprinkler_cell({row},{col})", cat="Binary")
          for col in range(cols)] for row in range(rows)
     ]
 
+    # Watered Tile Variables
     watered = [
         [pulp.LpVariable(f"Watered_cell({i},{j})", cat="Binary")
          for j in range(cols)] for i in range(rows)
@@ -46,7 +47,7 @@ def solve(farmGrid):
             problem += watered[i][j] <= 1 - sprinklers[i][j]
 
     # Solve the problem
-    status = problem.solve()
+    problem.solve()
 
     # Prepare the results
     sprinkler_placement = [[int(pulp.value(sprinklers[i][j])) for j in range(cols)] for i in range(rows)]
@@ -55,6 +56,4 @@ def solve(farmGrid):
     # print(f"Status: {pulp.LpStatus[status]}")
     print(f"Maximum tiles watered: {pulp.value(problem.objective)}")
 
-    # Draw the farm visualization
-    # draw_farm(farmGrid, sprinkler_placement, watered_tiles)
     return sprinkler_placement,watered_tiles
