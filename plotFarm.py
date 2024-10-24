@@ -1,53 +1,64 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.image as mpimg
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
-def plot_result(farmGrid, sprinkler_placement, watered_tiles):
+def plot_result_with_images(farmGrid, sprinkler_placement, watered_tiles, image_paths):
     rows = len(farmGrid)
     cols = len(farmGrid[0])
 
-    # Create a visualization grid using numpy
-    grid = np.zeros((rows, cols))
+    # # Create a base grid to visualize farm layout
+    # grid = np.zeros((rows, cols))
 
+    # Prepare the figure
+    fig , ax = plt.subplots(figsize=(8, 6))
+
+    # Loop through each cell and place images based on classification
     for i in range(rows):
         for j in range(cols):
-            if sprinkler_placement[i][j] == 1:  # Sprinkler placed
-                grid[i][j] = 1
-            elif farmGrid[i][j] == 0:        # Unfarmable land
-                grid[i][j] = 0
-            elif watered_tiles[i][j] == 1:  # Watered farmable land
-                grid[i][j] = 2
-            else:                           # Unwatered farmable land
-                grid[i][j] = 3
+            if sprinkler_placement[i][j] == 1:
+                img = mpimg.imread(image_paths['Iridium Sprinkler'])  # Load sprinkler image
+            elif farmGrid[i][j] == 0:
+                img = mpimg.imread(image_paths['Unfarmable'])  # Load unfarmable image
+            elif watered_tiles[i][j] == 1:
+                img = mpimg.imread(image_paths['Watered Crops'])  # Load watered image
+                if np.random.choice([True, False]):
+                    img = np.fliplr(img)  # Rotate image by 90 degrees
+            else:
+                img = mpimg.imread(image_paths['Unwatered Crops'])  # Load unwatered image
 
-    # Define a custom color map for the visualization with more pleasing colors
-    cmap = plt.cm.colors.ListedColormap(['black', 'orange', 'deepskyblue', 'saddlebrown'])  # Custom colors
+            # Plot image in the respective grid cell
+            ax.imshow(img, extent=[j, j + 1, rows - i - 1, rows - i], aspect='auto')
 
-    plt.figure(figsize=(12, 8))
+    # Set gridlines
+    ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+    ax.set_xticks(np.arange(0, cols, 1))
+    ax.set_yticks(np.arange(0, rows, 1))
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+    ax.grid(True, color='black', linestyle='-', linewidth=0.5)
 
-    # Draw the farm grid
-    plt.imshow(grid, cmap=cmap, interpolation='none')
-    
-    # Adjust colorbar position and size to avoid overlap
-    cbar = plt.colorbar(ticks=[0, 1, 2, 3], label='Legend', shrink=0.8)
-    plt.clim(-0.5, 3.5)  # Set color limits
+    # Set limits to match grid size
+    ax.set_xlim(0, cols)
+    ax.set_ylim(0, rows)
 
-    # Set legend labels with better color descriptions and place outside the plot
-    color_labels = ['Unfarmable (Black)', 'Sprinkler (Orange)', 'Watered (Sky Blue)', 'Unwatered (Brown)']
-    handles = [plt.Rectangle((0, 0), 1, 1, color=cmap(i)) for i in range(4)]
-    
-    # Position legend to the right and outside the plot
-    plt.legend(handles, color_labels, bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0, fontsize=10)
+    # Set aspect ratio to equal for square grid
+    ax.set_aspect('equal')
 
-    # Set gridlines with enhanced visibility
-    plt.xticks(np.arange(-0.5, cols, 1), [])
-    plt.yticks(np.arange(-0.5, rows, 1), [])
-    plt.grid(color='white', linestyle='-', linewidth=1.5)
+    #  Create custom labels for the used images
+    color_labels = ['Iridium Sprinkler', 'Quality Sprinkler', 'Unfarmable', 'Watered Crops', 'Unwatered Crops']
 
-    # Display the plot with a more descriptive title
-    plt.title("Optimized Farm Sprinkler Placement and Watering", fontsize=16, pad=20)
-    
-    # Tight layout for better spacing
-    plt.tight_layout()
-    
+    # Create a list of images to display in the legend
+    legend_images = [mpimg.imread(image_paths[label]) for label in color_labels]
+
+    # Create the custom legend with images
+    for i, (img, label) in enumerate(zip(legend_images, color_labels)):
+        imagebox = OffsetImage(img, zoom=0.25)  # Adjust zoom level to make the images smaller
+        ab = AnnotationBbox(imagebox, (1.05, 0.95 - i * 0.06), frameon=False, xycoords=ax.transAxes)
+        ax.add_artist(ab)
+        ax.text(1.15, 0.95 - i * 0.06, label, va='center', fontsize=12, transform=ax.transAxes)
+
+    # Set title and display
+    plt.title("Farm Sprinkler Placement and Watering with Images")
+    plt.subplots_adjust(right=0.7)  # Adjust to make space for the legend
     plt.show()
-    # plt.savefig("farm.png")
